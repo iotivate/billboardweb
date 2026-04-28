@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #0a0a0f;
+  --accent: #ff00de;
+  --led-dot: clamp(4px, 0.6vmin, 10px);
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: var(--void);
+  color: #fff;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* On iOS Safari/Chrome the address bar steals 50–80px from `100vh`,
+   leaving a slice of background visible below the billboard. `100dvh`
+   tracks the dynamic visible viewport so the billboard fills exactly
+   the space the user can see. Falls back to 100% on desktop browsers
+   that don't recognize dvh. */
+@supports (height: 100dvh) {
+  html,
+  body,
+  #root {
+    height: 100dvh;
+  }
+}
+
+body {
+  overflow: hidden;
+}
+
+/* App layout, orientation-based.
+   Portrait viewports (any width): stack — billboard takes the top 60%
+   of the viewport, controls scroll in the remaining space.
+   Landscape viewports (any width): side-by-side — billboard fills the
+   left, 320px control panel on the right. This covers landscape phones
+   (where the billboard wants width, not height), landscape tablets,
+   and normal desktop windows uniformly. */
+.app-layout {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  grid-template-rows: 60vh 1fr;
+  grid-template-columns: 1fr;
+}
+
+@media (orientation: landscape) {
+  .app-layout {
+    grid-template-rows: 1fr;
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+}
+
+/* Order-sensitive: the fullscreen rule must come AFTER the media query
+   so it wins on equal-specificity selectors regardless of orientation. */
+.app-layout--fullscreen {
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+}
+
+/* In portrait the panel sits below the billboard (border on top edge);
+   in landscape it sits to the right (border on left edge). */
+.control-panel-aside {
+  border-top: 1px solid rgb(255 255 255 / 0.05);
+  border-left: none;
+}
+
+@media (orientation: landscape) {
+  .control-panel-aside {
+    border-top: none;
+    border-left: 1px solid rgb(255 255 255 / 0.05);
+  }
+}

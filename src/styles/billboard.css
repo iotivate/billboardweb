@@ -1,0 +1,267 @@
+.billboard-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--void);
+  isolation: isolate;
+  /* Becomes a size container so descendant cells can size relative to
+     the billboard via 100cqw / 100cqh — see .billboard-cell sizing. */
+  container-type: size;
+}
+
+.billboard-track {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.billboard-track--horizontal {
+  flex-direction: row;
+  height: 100%;
+  animation-name: scroll-x;
+}
+
+.billboard-track--vertical {
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  animation-name: scroll-y;
+}
+
+.billboard-track > .billboard-cell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Half of --repeat-gap on each side; two adjacent cells produce
+     a total gap of --repeat-gap em between text repeats. */
+  padding: 0 calc(var(--repeat-gap, 1.5em) / 2);
+  flex-shrink: 0;
+}
+
+/* Each cell is forced to be at least as big as the billboard along the
+   scroll axis. The marquee animates translate(-50%) of the track, which
+   equals one cell's size; if a cell were narrower than the billboard,
+   the scroll distance would be shorter than the viewport and the text
+   would never traverse the screen. With min-width: 100cqw the scroll
+   distance always equals the viewport, regardless of text or font size.
+   Cells with content wider than the billboard (long text, large font)
+   simply grow to fit; min-width is a floor, not a fixed size. */
+.billboard-track--horizontal > .billboard-cell {
+  height: 100%;
+  min-width: 100cqw;
+}
+
+.billboard-track--vertical > .billboard-cell {
+  width: 100%;
+  padding: calc(var(--repeat-gap, 1.5em) / 2) 0;
+  min-height: 100cqh;
+}
+
+.billboard-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+  line-height: 1.05;
+  font-size: calc(clamp(8vmin, 18vmin, 320px) * var(--font-scale, 1));
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.billboard-track--vertical .billboard-line {
+  font-size: calc(clamp(8vmin, 14vmin, 240px) * var(--font-scale, 1));
+}
+
+@keyframes scroll-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes scroll-y {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+@keyframes blink {
+  0%,
+  49.99% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.18;
+  }
+}
+
+.billboard-track {
+  animation-duration: 30s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Non-scroll motions: single cell, centered. We share most layout with
+   the horizontal scroll track but suppress its translate animation and
+   apply opacity-based effects instead. */
+.billboard-track--static,
+.billboard-track--blink,
+.billboard-track--pulse {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  animation: none;
+}
+
+.billboard-track--blink {
+  animation: blink var(--motion-period, 1s) steps(2, jump-none) infinite;
+}
+
+.billboard-track--pulse {
+  animation: pulse var(--motion-period, 2s) ease-in-out infinite;
+}
+
+/* Style classes apply per-text-segment so that QR codes and images
+   (which sit on the same line as the surrounding text) are not subject
+   to text-shadow stacks or the LED dot mask. */
+
+.style-neon {
+  color: #fff;
+  text-shadow:
+    0 0 calc(4px * var(--glow-scale, 1)) #fff,
+    0 0 calc(11px * var(--glow-scale, 1)) #fff,
+    0 0 calc(19px * var(--glow-scale, 1)) var(--accent),
+    0 0 calc(40px * var(--glow-scale, 1)) var(--accent),
+    0 0 calc(80px * var(--glow-scale, 1)) var(--accent),
+    0 0 calc(100px * var(--glow-scale, 1)) var(--accent);
+}
+
+.style-solid {
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 calc(8px * var(--glow-scale, 1)) var(--accent);
+}
+
+.style-led {
+  color: var(--accent);
+  /* Dot:cell ratio = 1.2/3 = 40% (was 50%). The smaller dot leaves
+     a visible gap on every side, so individual LEDs read clearly even
+     when filmed by a phone camera at 1080p — they don't blur into a
+     solid block. The cell pitch itself is driven by --led-dot, set
+     from the LED dot size slider in state. */
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='6' height='6'><circle cx='3' cy='3' r='1.2' fill='white'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='6' height='6'><circle cx='3' cy='3' r='1.2' fill='white'/></svg>");
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: var(--led-dot) var(--led-dot);
+  mask-size: var(--led-dot) var(--led-dot);
+  text-shadow: 0 0 calc(8px * var(--glow-scale, 1)) currentColor;
+}
+
+/* Outline mode: hollow letters with a stroke in the accent color.
+   Stacks with any base style. For LED, the dot mask still applies and
+   produces a dotted outline — a deliberate aesthetic. */
+.is-outline {
+  color: transparent;
+  -webkit-text-stroke: 0.04em var(--accent);
+  text-stroke: 0.04em var(--accent);
+}
+
+/* QR codes — sized to roughly match line-height, accent foreground.
+   Always rendered crisp; LED mask does not apply because the segment
+   sits at the .billboard-line level alongside text segments. */
+.billboard-qr {
+  height: 0.95em;
+  width: 0.95em;
+  margin: 0 0.18em;
+  color: var(--accent);
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Inline image, rendered as a STYLE-AWARE silhouette.
+   The image's pixels mask the element; the visible fill comes from the
+   current style's background — accent for solid, accent+glow for neon,
+   a tiled dot pattern (clipped by the mask) for led. */
+.billboard-image-silhouette {
+  display: inline-block;
+  height: 0.95em;
+  margin: 0 0.18em;
+  vertical-align: middle;
+  flex-shrink: 0;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  background-color: var(--accent);
+}
+
+.billboard-image-solid {
+  filter: drop-shadow(0 0 calc(4px * var(--glow-scale, 1)) var(--accent));
+}
+
+.billboard-image-neon {
+  filter:
+    drop-shadow(0 0 calc(4px * var(--glow-scale, 1)) #fff)
+    drop-shadow(0 0 calc(10px * var(--glow-scale, 1)) var(--accent))
+    drop-shadow(0 0 calc(20px * var(--glow-scale, 1)) var(--accent))
+    drop-shadow(0 0 calc(40px * var(--glow-scale, 1)) var(--accent));
+}
+
+/* LED variant: replace solid fill with a tiled dot pattern. The mask
+   still clips to the image silhouette, so the result is a dotted version
+   of the image — exactly how a real LED matrix would render it. */
+.billboard-image-led {
+  background-color: transparent;
+  /* Match the 40% diameter of the text LED mask: 20% radius (= 40%
+     diameter) for sharp dots with visible spacing on all sides. */
+  background-image: radial-gradient(
+    circle at center,
+    var(--accent) 20%,
+    transparent 22%
+  );
+  background-size: var(--led-dot) var(--led-dot);
+  background-repeat: repeat;
+  filter: drop-shadow(0 0 calc(6px * var(--glow-scale, 1)) var(--accent));
+}
+
+.billboard-watermark {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  opacity: 0.45;
+  font-size: clamp(10px, 0.9vmin, 14px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  color: #fff;
+  mix-blend-mode: difference;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
