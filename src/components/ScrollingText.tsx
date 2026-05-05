@@ -82,6 +82,11 @@ function Cell({ segments, axis, textClass, ariaHidden }: CellProps) {
               if (seg.type === "image") {
                 return <ImageSegment key={i} />;
               }
+              if (seg.type === "watermark") {
+                // Reserved for future use; currently unreachable since
+                // ScrollingText no longer emits watermark segments.
+                return null;
+              }
               return (
                 <span key={i} className={textClass}>
                   {seg.value}

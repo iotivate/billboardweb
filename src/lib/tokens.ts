@@ -9,7 +9,8 @@
 export type Segment =
   | { type: "text"; value: string }
   | { type: "qr"; value: string }
-  | { type: "image" };
+  | { type: "image" }
+  | { type: "watermark"; value: string };
 
 export interface TokenContext {
   now: number;
