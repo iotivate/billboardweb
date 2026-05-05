@@ -21,11 +21,15 @@ import {
   type StoredLicense,
 } from "../lib/license";
 
+// localStorage keys keep the "webbillboard:" prefix as a historical
+// identifier — renaming them would orphan any existing saved state on
+// users' devices for no user-visible benefit (these keys are never
+// surfaced in the UI). The product display name is BillboardWeb.
 const STORAGE_KEY = "webbillboard:v1";
 const IMAGE_STORAGE_KEY = "webbillboard:image:v1";
 
 const DEFAULTS: BillboardState = {
-  text: "WEBBILLBOARD",
+  text: "BILLBOARDWEB",
   style: "neon",
   speed: 50,
   direction: "left",

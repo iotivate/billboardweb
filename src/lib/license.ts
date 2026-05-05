@@ -41,8 +41,8 @@ function storageKey(productId: ProductId): string {
 }
 
 function instanceName(): string {
-  if (typeof navigator === "undefined") return "webbillboard";
-  return navigator.userAgent.slice(0, 80) || "webbillboard";
+  if (typeof navigator === "undefined") return "billboardweb";
+  return navigator.userAgent.slice(0, 80) || "billboardweb";
 }
 
 export async function activateLicense(

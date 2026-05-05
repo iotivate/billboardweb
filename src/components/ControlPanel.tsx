@@ -30,7 +30,7 @@ export function ControlPanel({ onFullscreen }: ControlPanelProps) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-sm font-bold uppercase tracking-[0.2em] text-white/90">
-            WebBillboard
+            BillboardWeb
           </h1>
           <p className="text-[11px] text-white/40 mt-0.5">
             Your monitor is a billboard.

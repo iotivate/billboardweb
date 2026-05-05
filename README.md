@@ -1,4 +1,4 @@
-# WebBillboard
+# BillboardWeb
 
 Turn any desktop monitor into a cinematic scrolling billboard. Built to be filmed.
 
