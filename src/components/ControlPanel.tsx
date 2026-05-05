@@ -39,6 +39,20 @@ export function ControlPanel({ onFullscreen }: ControlPanelProps) {
         <ShareButton />
       </div>
 
+      {/* Primary actions, hoisted to the top of the panel so they're
+          reachable without scrolling. Fullscreen is the most common
+          use-action; weight it visually heavier than Pause. */}
+      <div className="grid grid-cols-[auto_1fr] gap-2">
+        <PlayPauseButton />
+        <button
+          type="button"
+          onClick={onFullscreen}
+          className="rounded-md py-3.5 px-4 bg-white text-black font-bold tracking-wider text-sm uppercase shadow-lg shadow-white/5 hover:bg-white/90 transition-colors"
+        >
+          Fullscreen <span className="opacity-50 ml-1 text-xs">(F)</span>
+        </button>
+      </div>
+
       <SavedPresetsBar />
 
       <section className="flex flex-col gap-2">
@@ -101,17 +115,6 @@ export function ControlPanel({ onFullscreen }: ControlPanelProps) {
           <DirectionPicker />
         </section>
       )}
-
-      <div className="grid grid-cols-2 gap-2">
-        <PlayPauseButton />
-        <button
-          type="button"
-          onClick={onFullscreen}
-          className="rounded-md py-3 px-4 bg-white text-black font-bold tracking-wider text-sm uppercase hover:bg-white/90 transition-colors"
-        >
-          Fullscreen <span className="opacity-50 ml-1 text-xs">(F)</span>
-        </button>
-      </div>
 
       <div className="mt-auto pt-4 border-t border-white/5">
         <LicensePanel />
